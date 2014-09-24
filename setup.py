@@ -5,6 +5,9 @@ def desc():
     with open("README.md") as f:
         return f.read()
 
+def reqs():
+    with open('requirements.txt') as f:
+        return f.read().splitlines()
 
 setup(
     name='frasco-geoip',
@@ -17,8 +20,5 @@ setup(
     long_description=desc(),
     py_modules=["frasco_geoip"],
     platforms='any',
-    install_requires=[
-        'frasco',
-        'pygeoip==0.3.1'
-    ]
+    install_requires=reqs() + ['frasco']
 )
