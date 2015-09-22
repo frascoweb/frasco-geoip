@@ -19,20 +19,30 @@ class GeoipFeature(Feature):
             self.geolocate_country()
 
     @action(default_option="addr", as_="geo_country_code")
-    def geolocate_country(self, addr=None):
-        if "geo_country_code" not in session:
+    def geolocate_country(self, addr=None, use_session_cache=True):
+        country = None
+        if use_session_cache and "geo_country_code" in session:
+            country = session["geo_country_code"]
+        else:
             gi = pygeoip.GeoIP(self.options["country_db"])
-            session["geo_country_code"] = gi.country_code_by_addr(addr or self.get_remote_addr())
-        current_context.data.geo_country_code = session["geo_country_code"]
-        return session["geo_country_code"]
+            country = gi.country_code_by_addr(addr or self.get_remote_addr())
+            if use_session_cache:
+                session["geo_country_code"] = country
+        current_context.data.geo_country_code = country
+        return country
 
     @action(default_option="addr", as_="geo_city")
-    def geolocate_city(self, addr=None):
-        if "geo_city" not in session:
+    def geolocate_city(self, addr=None, use_session_cache=True):
+        city = None
+        if use_session_cache and "geo_city" in session:
+            city = session["geo_city"]
+        else:
             gi = pygeoip.GeoIP(self.options["city_db"])
-            session["geo_city"] = gi.record_by_addr(addr or self.get_remote_addr())
-        current_context.data.geo_city = session["geo_city"]
-        return session["geo_city"]
+            city = gi.record_by_addr(addr or self.get_remote_addr())
+            if use_session_cache:
+                session["geo_city"] = city
+        current_context.data.geo_city = city
+        return city
 
     @action("clear_geo_cache")
     def clear_cache(self):
